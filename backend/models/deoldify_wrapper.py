@@ -9,12 +9,19 @@ logger = logging.getLogger(__name__)
 
 WEIGHTS_DIR = Path(__file__).resolve().parent.parent.parent / "gfpgan" / "weights"
 
-PROTOTXT_URL = "https://raw.githubusercontent.com/richzhang/colorization/master/colorization/models/colorization_deploy_v2.prototxt"
-CAFFEMODEL_URL = "http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo/colorization_release_v2.caffemodel"
-PTS_URL = "https://raw.githubusercontent.com/richzhang/colorization/master/colorization/models/pts_in_hull.npy"
+PROTOTXT_URL = (
+    "https://raw.githubusercontent.com/richzhang/colorization/caffe"
+    "/models/colorization_deploy_v2.prototxt"
+)
+CAFFEMODEL_URL = (
+    "https://huggingface.co/spaces/viveknarayan/Image_Colorization"
+    "/resolve/main/colorization_release_v2.caffemodel"
+)
 
 PROTOTXT_PATH = WEIGHTS_DIR / "colorization_deploy_v2.prototxt"
 CAFFEMODEL_PATH = WEIGHTS_DIR / "colorization_release_v2.caffemodel"
+
+# 313 ab-space cluster centers from Zhang et al. colorization paper
 PTS_PATH = WEIGHTS_DIR / "pts_in_hull.npy"
 
 
@@ -36,19 +43,20 @@ class DeOldifyColorizer:
                 self._download(CAFFEMODEL_URL, CAFFEMODEL_PATH)
             if not PROTOTXT_PATH.exists():
                 self._download(PROTOTXT_URL, PROTOTXT_PATH)
-            if not PTS_PATH.exists():
-                self._download(PTS_URL, PTS_PATH)
 
             self.net = cv2.dnn.readNetFromCaffe(
                 str(PROTOTXT_PATH), str(CAFFEMODEL_PATH)
             )
 
-            pts = np.load(str(PTS_PATH))
-            pts = pts.transpose().reshape(2, 313, 1, 1).astype(np.float32)
-            class8 = self.net.getLayerId("class8_ab")
-            conv8 = self.net.getLayerId("conv8_313_rh")
-            self.net.getLayer(class8).blobs = [pts]
-            self.net.getLayer(conv8).blobs = [np.full([1, 313], 2.606, dtype=np.float32)]
+            if not PTS_PATH.exists():
+                logger.warning("pts_in_hull.npy not found at %s", PTS_PATH)
+            else:
+                pts = np.load(str(PTS_PATH))
+                pts = pts.reshape(2, 313, 1, 1).astype(np.float32)
+                class8 = self.net.getLayerId("class8_ab")
+                conv8 = self.net.getLayerId("conv8_313_rh")
+                self.net.getLayer(class8).blobs = [pts]
+                self.net.getLayer(conv8).blobs = [np.full([1, 313], 2.606, dtype=np.float32)]
 
             logger.info("DeOldify (OpenCV DNN colorization) model loaded")
         except Exception as e:
