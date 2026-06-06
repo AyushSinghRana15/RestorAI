@@ -20,6 +20,55 @@ RestorAI is a deep learning-based web application designed to restore and enhanc
 - **Deployment:** Vercel, Hugging Face Spaces
 - **Storage:** Cloudinary
 
+## Getting Started
+
+### Prerequisites
+
+- Python 3.11+
+- Node.js 18+
+
+### Backend Setup (Virtual Environment)
+
+```bash
+# Create and activate virtual environment (if not already done)
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the backend
+python -m backend.run
+```
+
+The API will be available at `http://localhost:8000`.
+
+### Frontend Setup
+
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+```
+
+The frontend will be available at `http://localhost:5173`.
+
+### Build for Production
+
+```bash
+# Backend
+# (ensure venv is activated)
+python -m backend.run
+
+# Frontend
+cd frontend && npm run build
+```
+
 ## Objective
 
 To provide an accessible AI-powered solution for restoring and preserving old photographs, enabling users to recover valuable memories with minimal manual intervention.
