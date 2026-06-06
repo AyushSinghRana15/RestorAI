@@ -13,16 +13,17 @@ class RestorationPipeline:
     def __init__(self):
         self.models_loaded = False
 
-    def _ensure_models(self):
+    def _ensure_models(self, colorize: bool = False):
         if not self.models_loaded:
             ModelLoader.get_gfpgan()
             ModelLoader.get_realesrgan()
             ModelLoader.get_lama()
-            ModelLoader.get_deoldify()
+            if colorize:
+                ModelLoader.get_deoldify()
             self.models_loaded = True
 
     def run(self, input_path: str, output_path: str, colorize: bool = False) -> dict:
-        self._ensure_models()
+        self._ensure_models(colorize=colorize)
         start = time.time()
         models_used = []
 
