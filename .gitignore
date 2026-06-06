@@ -8,3 +8,6 @@ __pycache__/
 uploads/
 outputs/
 venv/
+gfpgan/weights/
+samples/*.png
+samples/*.jpg

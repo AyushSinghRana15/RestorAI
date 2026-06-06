@@ -1,8 +1,11 @@
 import logging
+from pathlib import Path
 
 from backend.config import DEVICE
 
 logger = logging.getLogger(__name__)
+
+WEIGHTS_DIR = Path(__file__).resolve().parent.parent.parent / "gfpgan" / "weights"
 
 
 class ModelLoader:
@@ -14,15 +17,16 @@ class ModelLoader:
             try:
                 from gfpgan import GFPGANer
 
+                model_path = str(WEIGHTS_DIR / "GFPGANv1.3.pth")
                 cls._instances["gfpgan"] = GFPGANer(
-                    model_path=None,
+                    model_path=model_path,
                     upscale=1,
                     arch="clean",
                     channel_multiplier=2,
                     bg_upsampler=None,
                     device=DEVICE,
                 )
-                logger.info("GFPGAN model loaded")
+                logger.info("GFPGAN model loaded from %s", model_path)
             except Exception as e:
                 logger.warning("Failed to load GFPGAN: %s", e)
                 cls._instances["gfpgan"] = None
@@ -38,9 +42,10 @@ class ModelLoader:
                 model = RRDBNet(
                     num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=4
                 )
+                model_path = str(WEIGHTS_DIR / "RealESRGAN_x4plus.pth")
                 cls._instances["realesrgan"] = RealESRGANer(
                     scale=4,
-                    model_path=None,
+                    model_path=model_path,
                     model=model,
                     tile=400,
                     tile_pad=10,
@@ -48,7 +53,7 @@ class ModelLoader:
                     half=DEVICE != "cpu",
                     device=DEVICE,
                 )
-                logger.info("Real-ESRGAN model loaded")
+                logger.info("Real-ESRGAN model loaded from %s", model_path)
             except Exception as e:
                 logger.warning("Failed to load Real-ESRGAN: %s", e)
                 cls._instances["realesrgan"] = None

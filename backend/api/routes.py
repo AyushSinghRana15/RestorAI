@@ -56,8 +56,8 @@ async def restore_image(job_id: str):
 
     return {
         "job_id": job_id,
-        "original": str(input_path),
-        "restored": str(output_path),
+        "original": f"/uploads/{input_path.name}",
+        "restored": f"/outputs/{output_path.name}",
         "processing_time": result.get("processing_time", 0),
         "models_used": result.get("models_used", []),
     }
@@ -93,4 +93,6 @@ async def get_status(job_id: str):
             restored = str(candidate)
             break
 
-    return {"job_id": job_id, "original": original, "restored": restored}
+    original_url = f"/uploads/{Path(original).name}" if original else None
+    restored_url = f"/outputs/{Path(restored).name}" if restored else None
+    return {"job_id": job_id, "original": original_url, "restored": restored_url}
